@@ -13,7 +13,9 @@ import org.junit.runner.RunWith;
         strict = false,
         tags = "@smoke_test",
         plugin = {"html:target/default-report",
-                "json:target/cucumber1.json"}
+                "json:target/cucumber1.json",
+                "rerun:target/rerun.txt"
+        }
 
 )
 
