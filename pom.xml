@@ -1,0 +1,206 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.vytrack</groupId>
+  <artifactId>OnlineCucumberSelenium</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>OnlineCucumberSelenium</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <profiles>
+    <!-- we can create another build that has alternative configuration . When we have sevaral
+    profile to activate this one : mvn verify -P <Smoke>-->
+    <profile>
+      <id>Smoke</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+              <source>8</source>
+              <target>8</target>
+            </configuration>
+          </plugin>
+
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M4</version>
+            <configuration>
+              <!-- for parallel running Cucumber-->
+              <parallel>methods</parallel>
+              <useUnlimitedThreads>true</useUnlimitedThreads>
+              <includes>
+                <!-- for  run class or classes-->
+                <include>**/SmokeTestRunner*.java</include>
+              </includes>
+              <testFailureIgnore>true</testFailureIgnore>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>Regression</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+              <source>9</source>
+              <target>9</target>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M4</version>
+            <configuration>
+              <!-- for parallel running Cucumber-->
+              <parallel>methods</parallel>
+              <useUnlimitedThreads>true</useUnlimitedThreads>
+              <includes>
+                <!-- for  run class or classes-->
+                <include>**/RegressionRunner.java</include>
+              </includes>
+              <testFailureIgnore>true</testFailureIgnore>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!--setting up java version for this program-->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>8</source>
+          <target>8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version> 3.0.0-M4 </version>
+        <configuration>
+          <!--below 3 lines are for parallel testing-->
+          <parallel>methods</parallel> <!--I changed this to methods when I run tests only through one runner-->
+          <useUnlimitedThreads>true</useUnlimitedThreads>
+          <!--<perCoreThreadCount>false</perCoreThreadCount>
+          this has to be false, or otherwise it will ignore the thread count we set up-->
+          <!-- <forkCount>2C</forkCount-->
+          <!-- fork - one JVM process
+          2c meaning maximum amount of forks will be number CPU cores *2: environment where java code is executed
+          it will not use more than 2 times-->
+          <includes>
+            <!-- this is to include runner class : you can specify some specific classes as well -->
+            <include>**/*CucumberRunner.java</include>
+          </includes>
+          <testFailureIgnore>true</testFailureIgnore>
+          <!-- To rerun failed tests automatically-->
+          <!-- <rerunFailingTestsCount>1</rerunFailingTestsCount> it is not good because it rewrites reports and shows only failed tests
+           there is a different way to do so-->
+        </configuration>
+      </plugin>
+      <plugin>
+        <!--below is for report-->
+        <groupId>net.masterthought</groupId>
+        <artifactId>maven-cucumber-reporting</artifactId>
+        <version> 5.0.0 </version>
+        <executions>
+          <execution>
+            <id>execution</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <projectName>Cucumber HTML Reports</projectName>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+              <inputDirectory>${project.build.directory}</inputDirectory>
+              <jsonFiles>
+                <param>**/cucumber*.json</param>
+                <!--this above param is  IMPORTANT . you have to have same name as in our report plugin in runner class-->
+              </jsonFiles>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <!-- NOT to GET this ERROR
+    SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+    SLF4J: Defaulting to no-operation (NOP) logger implementation
+    SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+    -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.30</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.30</version>
+    </dependency>
+
+    <!-- J Unit is engine and Cucumber is transmission SeleniumWebDriver is NOT substitution of Cucumber  -->
+    <!-- https://mvnrepsitory.com/artifact/io.cucumber/cucumber-java -->
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-java</artifactId>
+      <version>4.8.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-junit
+     cucumber by itself does not exist/ not autonomous. it has to be used with TestNG or JUnit -->
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-junit</artifactId>
+      <version>4.8.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Selenium Java
+    https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>3.141.59</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
+    <dependency>
+      <groupId>io.github.bonigarcia</groupId>
+      <artifactId>webdrivermanager</artifactId>
+      <version>3.8.1</version>
+    </dependency>
+
+
+
+  </dependencies>
+</project>
