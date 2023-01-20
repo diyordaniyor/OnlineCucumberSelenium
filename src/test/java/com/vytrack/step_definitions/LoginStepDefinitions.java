@@ -18,7 +18,7 @@ public class LoginStepDefinitions {
     @Given("user is on the login page")
     public void user_is_on_the_login_page() {
         System.out.println("Open login page");
-        String env = "qa1"; //( by default it is qa2)
+        String env = "qa3"; //( by default it is qa2)
         if (System.getProperty("env") != null) { //if environment was specified with maven goal -Denv=qa3
             env = System.getProperty("env");
         }
