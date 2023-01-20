@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
         dryRun = false,
         strict = false,
         tags = "not @smoke_test",
-        plugin = {"html:target/default-report",
+        plugin = {"html:target/default-report-for-regression",
                 "json:target/cucumber1.json",
                 "rerun:target/rerun.txt"
         }
